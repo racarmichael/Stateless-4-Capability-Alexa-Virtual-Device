@@ -1,0 +1,136 @@
+//THIS SWITCH IS STATELESS (YOU CAN TRIGGER CONSECUTIVE ON/OFF COMMANDS)
+/*THIS CAN ALSO BE USED AS A 4 WAY ALEXA TRIGGER (ALSO STATELESS):
+**SWITCH: ON = CONTACT OPEN, OFF = CONTACT CLOSED
+**DIMMER CAN ONLY BE USED AS AN ALEXA TRIGGER: <50% MOTION INACTIVE, >50% MOTION ACTIVE
+*/
+
+
+metadata {
+
+    definition (name: "Stateless Alexa 4-Way Switch", namespace: "racarmichael", author: "Ryan Carmichael",
+    //Set device icon as "TV" (https://github.com/Samsung/SmartThings/blob/master/internal/rules/device_type_table.md)
+    //ocfDeviceType: "oic.d.tv"
+    ) {
+        capability "Switch"
+        capability "Switch Level"
+        
+        //ALEXA
+        capability "Contact Sensor"
+        capability "Motion Sensor"
+
+    }
+    
+    //Icons (http://htmlpreview.github.io/?https://github.com/krlaframboise/Resources/blob/master/SmartThings-Icons.html)
+
+    tiles {
+        standardTile("switch", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+        
+            //OFF
+            state "off", label: '${currentValue}', action: "switch.on", 
+            //OFF ICON
+            icon: "st.secondary.off", 
+            backgroundColor: "#ffffff"
+            
+            //ON
+            state "on", label: '${currentValue}', action: "switch.off", 
+            //ON ICON
+            icon: "st.Entertainment.entertainment7", 
+            backgroundColor: "#00A0DC"
+
+            //OFF STATELESS
+            state "turning off", label: '${currentValue}', action: "switch.on", 
+            //OFF ICON
+            icon: "st.secondary.off", 
+            backgroundColor: "#ffffff"
+            
+            //ON STATELESS
+            state "turning on", label: '${currentValue}', action: "switch.off", 
+            //ON ICON
+            icon: "st.Entertainment.entertainment7", 
+            backgroundColor: "#00A0DC"
+  
+        }
+        
+        standardTile("switchLevel", "device.level", width: 2, height: 2, canChangeIcon: true) {
+        
+            //OFF 2
+            state "off2", label: '${currentValue}', action: "switchLevel.0", 
+            //OFF ICON
+            icon: "st.secondary.off", 
+            backgroundColor: "#ffffff"
+            
+            //ON 2
+            state "on2", label: '${currentValue}', action: "switchLevel.100", 
+            //ON ICON
+            icon: "st.Entertainment.entertainment7", 
+            backgroundColor: "#00A0DC"
+  
+        }
+        
+        //ON
+		standardTile("off", "device.off", width:1, height:1, decoration: "flat") {
+			state("off", action: "switch.on", 
+            //ON ICON
+            icon: "st.Entertainment.entertainment7")
+			state "false", label: ''
+		}
+        
+		//OFF
+        standardTile("on", "device.on", width:1, height:1, decoration: "flat") {
+			state("on", action: "switch.off", 
+            //OFF ICON
+            icon: "st.secondary.off")
+			state "false", label: ''
+		}
+        
+                controlTile("levelSliderControl", "device.level", "slider", height: 1, width: 3, inactiveLabel: false, backgroundColor:"#ffe71e") {
+            state "level", action:"switch level.setLevel"
+        }
+
+		main("switch")
+        
+		details( ["switch", "off", "on", "levelSliderControl"] )
+        
+    }
+    
+    
+}
+
+def parse(description) {
+}
+
+def on() {
+    sendEvent(name: "switch", value: "turning on")
+    sendEvent(name: "switch", value: "on")
+    
+            //ALEXA
+            sendEvent(name: "contact", value: "idle")
+            sendEvent(name: "contact", value: "open")
+}
+
+def off() {
+    sendEvent(name: "switch", value: "turning off")
+    sendEvent(name: "switch", value: "off")
+    
+            //ALEXA
+            sendEvent(name: "contact", value: "idle")
+            sendEvent(name: "contact", value: "closed")
+}
+
+def setLevel(val){
+    log.info "setLevel $val"
+    
+    if (val < 0) val = 0
+    else if( val > 100) val = 100
+    
+    //ALEXA
+    sendEvent(name: "motion", value: "idle")
+    if (val < 50) sendEvent(name: "motion", value: "inactive")
+    else if (val > 50) sendEvent(name: "motion", value: "active")
+    
+    if (val < 50) val = 50
+    else if( val > 50) val = 50
+    
+    sendEvent(name: "level", value: val)
+    
+    }
