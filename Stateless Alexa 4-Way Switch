@@ -7,7 +7,7 @@
 
 metadata {
 
-    definition (name: "Stateless Alexa 4-Way Switch", namespace: "racarmichael", author: "Ryan Carmichael",
+    definition (name: "Stateless 4 Capability Alexa Virtual Device", namespace: "racarmichael", author: "Ryan Carmichael",
     //Set device icon as "TV" (https://github.com/Samsung/SmartThings/blob/master/internal/rules/device_type_table.md)
     //ocfDeviceType: "oic.d.tv"
     ) {
